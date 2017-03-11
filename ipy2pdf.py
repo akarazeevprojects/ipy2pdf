@@ -19,33 +19,32 @@
 # Usage: ./ipy2pdf notebook.ipynb
 # Output: notebook.pdf
 
-import os, sys
+import os
+import sys
 import shutil
 
 ip_name = sys.argv[1]
 name = ip_name[:len(ip_name)-5]  # with '.' at the end
 
 tex_name = ip_name[:len(ip_name)-5]+"tex"
-tmp_name = "_"+tex_name
+tmp_name = "_" + tex_name
 
 os.system("jupyter nbconvert {} --to latex".format(ip_name))
 
 pttrn = "\usepackage{mathpazo}"
 ins = "    \usepackage[T2A]{fontenc}\n"
 
-with open(tex_name, "r") as f_old, \
-	open(tmp_name, "w") as f_new:
+with open(tex_name, "r") as f_old, open(tmp_name, "w") as f_new:
+    flag = 1
 
-	flag = 1
-
-	for line in f_old:
-	    f_new.write(line)
-	    if flag and (pttrn in line):
-	    	flag = 0
-	        f_new.write(ins)
+    for line in f_old:
+        f_new.write(line)
+        if flag and (pttrn in line):
+            flag = 0
+            f_new.write(ins)
 
 os.remove(tex_name)
-os.rename(tmp_name,tex_name)
+os.rename(tmp_name, tex_name)
 
 os.system("pdflatex -interaction=nonstopmode {} > /dev/null".format(tex_name))
 
