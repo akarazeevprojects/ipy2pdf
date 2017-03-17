@@ -2,8 +2,6 @@
 
 Скрипт для конвертации _notebook.ipynb_, содержащий русские символы, в _notebook.pdf_.
 
-Installation: `python install.py`
-
 | _ | _ |
 | :-------------: | :-------------: |
 | Installation | `python install.py` |
