@@ -1,7 +1,11 @@
 #### ipy2pdf
 
-Скрипт для конвертации *notebook.ipynb*, содержащий русские символы, в *notebook.pdf*.
+Скрипт для конвертации _notebook.ipynb_, содержащий русские символы, в _notebook.pdf_.
 
-- Usage: `./ipy2pdf notebook.ipynb`
+- Installation: `python install.py`
+
+- Usage: `ipy2pdf notebook.ipynb`
 
 - Output: `notebook.pdf`
+
+That's easy
