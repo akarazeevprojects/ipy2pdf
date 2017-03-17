@@ -48,7 +48,6 @@ os.rename(tmp_name, tex_name)
 
 os.system("pdflatex -interaction=nonstopmode {} > /dev/null".format(tex_name))
 
-shutil.rmtree(name[:-1]+"_files")
 os.remove(name+"log")
 os.remove(name+"tex")
 os.remove(name+"aux")
