@@ -16,8 +16,6 @@
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-# !! Be careful with names of .ipynb files !!
-
 # Usage: ipy2pdf notebook.ipynb
 # Output: notebook.pdf
 
@@ -47,6 +45,12 @@ name = ipynb_name[:-5]  # with '.' at the end
 tex_name = name + "tex"  # make a filename for .tex file
 tmp_tex_name = "~$" + tex_name  # and for tmp file too
 
+files_folder_to_del = os.path.join(folder_path, name[:-1] + '_files')
+
+if os.path.exists(files_folder_to_del):
+    print('> Rename it to avoid collision: {}'.format(files_folder_to_del))
+    exit(1)
+
 # execute command to generate .tex file
 os.system("jupyter nbconvert {} --to latex".format(os.path.join(folder_path,
                                                                 ipynb_name)))
@@ -73,12 +77,19 @@ os.rename(os.path.join(folder_path, tmp_tex_name),
 os.system("pdflatex -interaction=nonstopmode -output-directory={} {} > \
           /dev/null".format(folder_path, os.path.join(folder_path, tex_name)))
 
-TO_DEL = ['aux', 'log', 'out', 'tex']
+# rm <name>_files directory
+try:
+    shutil.rmtree(files_folder_to_del)
+except Exception as e:
+    print('-> Not found: ', files_folder_to_del)
 
+TO_DEL = ['aux', 'log', 'out', 'tex']
+# rm temporary files
 for ext in TO_DEL:
+    tmp_file_to_del = os.path.join(folder_path, name + ext)
     try:
-        os.remove(os.path.join(folder_path, name + ext))
+        os.remove(tmp_file_to_del)
     except Exception as e:
-        print('-> Not found: ', os.path.join(folder_path, name + ext))
+        print('-> Not found: ', tmp_file_to_del)
 
 print('Done')
