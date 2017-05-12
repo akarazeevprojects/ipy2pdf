@@ -24,26 +24,26 @@ import sys
 import shutil
 
 try:
-    inp = sys.argv[1]  # input path to .ipynb
+    inp = sys.argv[1]  # Input path to '.ipynb'.
     inp = os.path.realpath(inp)
 except Exception as e:
     print('> Usage: ipy2pdf notebook.ipynb')
     exit()
 
-if not inp.endswith('.ipynb'):  # check #1
+if not inp.endswith('.ipynb'):  # Check #1.
     print("> Extension of file should be .ipynb")
     exit()
 
-if not os.path.exists(inp):  # check #2
+if not os.path.exists(inp):  # Check #2.
     print("> File doesn't exist... kek")
     exit()
 
-folder_path = os.path.dirname(inp)  # get path to folder of the file
-ipynb_name = os.path.basename(inp)  # get name of the file
+folder_path = os.path.dirname(inp)  # Get path to folder of the file.
+ipynb_name = os.path.basename(inp)  # Get name of the file.
 
-name = ipynb_name[:-5]  # with '.' at the end
-tex_name = name + "tex"  # make a filename for .tex file
-tmp_tex_name = "~$" + tex_name  # and for tmp file too
+name = ipynb_name[:-5]  # With '.' at the end.
+tex_name = name + "tex"  # Make a filename for '.tex' file.
+tmp_tex_name = "~$" + tex_name  # And for tmp-file too.
 
 files_folder_to_del = os.path.join(folder_path, name[:-1] + '_files')
 
@@ -51,40 +51,42 @@ if os.path.exists(files_folder_to_del):
     print('> Rename it to avoid collision: {}'.format(files_folder_to_del))
     exit(1)
 
-# execute command to generate .tex file
+# Execute command to generate '.tex' file.
 os.system("jupyter nbconvert {} --to latex".format(os.path.join(folder_path,
                                                                 ipynb_name)))
 
 pttrn = "\\usepackage{mathpazo}"
-# goal: to insert line ins after pttrn in .tex file
+
+# Goal: to insert line `ins` after pttrn in '.tex' file.
 ins = "    \\usepackage[T2A]{fontenc}\n"
 
 with open(os.path.join(folder_path, tex_name), "r") as file_old, \
      open(os.path.join(folder_path, tmp_tex_name), "w") as file_new:
-    is_inserted = False  # whether line ins is inserted in file_new
+    is_inserted = False  # Whether line `ins` is inserted in `file_new`.
     for line in file_old:
         file_new.write(line)
         if not is_inserted and (pttrn in line):
             is_inserted = True
             file_new.write(ins)
 
-# remove old .tex file and rename the old one
+# Remove old '.tex' file and rename the old one.
 os.remove(os.path.join(folder_path, tex_name))
 os.rename(os.path.join(folder_path, tmp_tex_name),
           os.path.join(folder_path, tex_name))
 
-# execute command to get .pdf from tex_name
+# Execute command to get '.pdf' from `tex_name`.
 os.system("pdflatex -interaction=nonstopmode -output-directory={} {} > \
           /dev/null".format(folder_path, os.path.join(folder_path, tex_name)))
 
-# rm <name>_files directory
+# Rm <name>_files directory.
 try:
     shutil.rmtree(files_folder_to_del)
 except Exception as e:
     print('-> Not found: ', files_folder_to_del)
 
 TO_DEL = ['aux', 'log', 'out', 'tex']
-# rm temporary files
+
+# Rm temporary files.
 for ext in TO_DEL:
     tmp_file_to_del = os.path.join(folder_path, name + ext)
     try:
