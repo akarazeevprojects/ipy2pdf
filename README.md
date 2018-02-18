@@ -8,6 +8,10 @@ Script to convert _notebook.ipynb_, containing russian/cyrrilic symbols, into _n
 
 That's easy.
 
+## Telegram-bot is available at [@ipynbot](https://t.me/ipynbot)
+
+Just send `notebook.ipynb` to him.
+
 ## Requirements
 
 You need to have `pdflatex` already installed on your system. And of course `jupyter` 🌚.
