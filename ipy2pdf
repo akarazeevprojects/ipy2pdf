@@ -4,7 +4,7 @@
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 #                    Version 2, December 2004
 #
-# Copyright (C) 2016-17 Anton Karazeev <anton.karazeev@gmail.com>
+# Copyright (C) 2016-18 Anton Karazeev <anton.karazeev@gmail.com>
 #
 # Everyone is permitted to copy and distribute verbatim or modified
 # copies of this license document, and changing it is allowed as long
@@ -73,6 +73,9 @@ with open(os.path.join(folder_path, tex_name), "r") as file_old, \
 os.remove(os.path.join(folder_path, tex_name))
 os.rename(os.path.join(folder_path, tmp_tex_name),
           os.path.join(folder_path, tex_name))
+
+# Go to folder of sources
+os.chdir(folder_path)
 
 # Execute command to get '.pdf' from `tex_name`.
 os.system("pdflatex -interaction=nonstopmode -output-directory={} {} > \

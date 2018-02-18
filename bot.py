@@ -26,7 +26,7 @@ def text_handler(bot, update):
     update.message.reply_text("Better send me a file with .ipynb extension")
 
 
-def cropper(bot, update):
+def converter(bot, update):
     file_path = None
 
     chat_dir = os.path.join("data", str(update.message.chat_id))
@@ -51,7 +51,7 @@ def cropper(bot, update):
 
     file_path = os.path.realpath(file_path)
 
-    update.message.reply_text("Cropping ...")
+    update.message.reply_text("Converting ...")
     print(file_path)
     bash_command = "ipy2pdf '{}'".format(file_path)
     process = subprocess.Popen(bash_command, stdout=subprocess.PIPE, shell=True)
@@ -74,7 +74,7 @@ def main():
     dp = updater.dispatcher
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.photo | Filters.document, cropper))
+    dp.add_handler(MessageHandler(Filters.document, converter))
     dp.add_handler(MessageHandler(Filters.text, text_handler))
 
     dp.add_error_handler(error)
@@ -84,4 +84,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
