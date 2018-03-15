@@ -9,6 +9,7 @@ import json
 import os
 import pickle
 from datetime import datetime
+import re
 
 
 class BotLogs:
@@ -72,8 +73,8 @@ def converter(bot, update):
     if update.message.document is not None:
         # Document case
         file_name = update.message.document.file_name
-
-        if '(' or ')' or '[' or ']' in file_name:
+	
+        if re.compile(r'[\(\)\[\]]').search(file_name):
             update.message.reply_text("Remove brackets from filename")
             return
 
@@ -102,23 +103,23 @@ def converter(bot, update):
     with open(pdf_path, 'rb') as f:
         update.message.reply_document(f)
 
-    update.message.reply_text(make_info())
-
     botlogger.add_msg("user {} send {}".format(str(update.message.chat_id), file_name))
+
+    update.message.reply_text(make_info())
 
 
 def make_info():
     global botlogger
-    reqs = str(39 + tmp.number_of_requests())
+    reqs = str(39 + botlogger.number_of_requests())
     firstdate = botlogger.first_date()
     msg = '{} requests since launch ({})'.format(reqs, firstdate)
     return msg
 
 
 def info(bot, update):
+    update.message.reply_text('Kek')
     msg = make_info()
     update.message.reply_text(msg)
-
 
 def main():
     updater = Updater(get_token())
