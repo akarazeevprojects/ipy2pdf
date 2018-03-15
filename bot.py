@@ -7,13 +7,47 @@ import telegram
 import logging
 import json
 import os
+import pickle
+from datetime import datetime
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
-                            %(message)s', level=logging.INFO)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+class BotLogs:
+    def __init__(self, logname, filename):
+        # create logger with 'spam_application'
+        self.logger = logging.getLogger(logname)
+        self.logger.setLevel(logging.DEBUG)
+
+        self.filename = filename
+
+        # create file handler which logs even debug messages
+        fh = logging.FileHandler(self.filename)
+        fh.setLevel(logging.DEBUG)
+
+        formatter = logging.Formatter('%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
+        fh.setFormatter(formatter)
+
+        # add the handlers to the logger
+        self.logger.addHandler(fh)
+
+    def add_msg(self, msg):
+        self.logger.info(msg)
+
+    def number_of_requests(self):
+        return len(self._load_logs())
+
+    def first_date(self):
+        logs = self._load_logs()
+        dates = list(map(lambda x: x.split('--')[0].split()[0], logs))
+        dates = list(map(lambda x: datetime.strptime(x, '%Y-%m-%d'), dates))
+        return sorted(dates)[0].strftime("%b %d, %Y")
+
+    def _load_logs(self):
+        with open(self.filename, 'r') as file:
+            logs = file.readlines()
+        return logs
+
+
+botlogger = BotLogs('bot_logger', 'bot.log')
 
 
 def get_token():
@@ -27,6 +61,7 @@ def text_handler(bot, update):
 
 
 def converter(bot, update):
+    global botlogger
     file_path = None
 
     chat_dir = os.path.join("data", str(update.message.chat_id))
@@ -37,6 +72,10 @@ def converter(bot, update):
     if update.message.document is not None:
         # Document case
         file_name = update.message.document.file_name
+
+        if '(' or ')' or '[' or ']' in file_name:
+            update.message.reply_text("Remove brackets from filename")
+            return
 
         if file_name[-6:].lower() != ".ipynb":
             update.message.reply_text("Better send me a file with .ipynb extension")
@@ -63,9 +102,22 @@ def converter(bot, update):
     with open(pdf_path, 'rb') as f:
         update.message.reply_document(f)
 
+    update.message.reply_text(make_info())
 
-def error(bot, update, error):
-    logger.warning('Update "%s" caused error "%s"' % (update, error))
+    botlogger.add_msg("user {} send {}".format(str(update.message.chat_id), file_name))
+
+
+def make_info():
+    global botlogger
+    reqs = str(39 + tmp.number_of_requests())
+    firstdate = botlogger.first_date()
+    msg = '{} requests since launch ({})'.format(reqs, firstdate)
+    return msg
+
+
+def info(bot, update):
+    msg = make_info()
+    update.message.reply_text(msg)
 
 
 def main():
@@ -76,8 +128,8 @@ def main():
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.document, converter))
     dp.add_handler(MessageHandler(Filters.text, text_handler))
+    dp.add_handler(CommandHandler("info", info))
 
-    dp.add_error_handler(error)
     updater.start_polling()
     updater.idle()
 
