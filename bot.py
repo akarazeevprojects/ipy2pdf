@@ -117,7 +117,6 @@ def make_info():
 
 
 def info(bot, update):
-    update.message.reply_text('Kek')
     msg = make_info()
     update.message.reply_text(msg)
 
