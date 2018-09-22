@@ -44,19 +44,19 @@ ipynb_name = os.path.basename(inp)  # Get name of the file.
 print(ipynb_name)
 
 name = ipynb_name[:-5]  # With '.' at the end.
-tex_name = name + "tex"  # Make a filename for '.tex' file.
+plain_name = name.replace(' ', '')  # No spaces.
+tex_name = plain_name + "tex"  # Make a filename for '.tex' file.
 tmp_tex_name = "~$" + tex_name  # And for tmp-file too.
 
-files_folder_to_del = os.path.join(folder_path, name[:-1] + '_files')
+files_folder_to_del = os.path.join(folder_path, plain_name[:-1] + '_files')
 
 if os.path.exists(files_folder_to_del):
     print('> Rename it to avoid collision: {}'.format(files_folder_to_del))
     exit(1)
 
 # Execute command to generate '.tex' file.
-os.system('jupyter nbconvert "{}" --to latex'.format(os.path.join(folder_path,
-                                                                  ipynb_name)))
-
+os.system('jupyter nbconvert "{}" --to latex --output={}'.format(os.path.join(folder_path, ipynb_name),
+                                                                 tex_name))
 pttrn = "\\usepackage{mathpazo}"
 
 # Goal: to insert line `ins` after pttrn in '.tex' file.
@@ -64,6 +64,7 @@ ins = "    \\usepackage[T2A]{fontenc}\n"
 
 with open(os.path.join(folder_path, tex_name), "r") as file_old, \
     open(os.path.join(folder_path, tmp_tex_name), "w") as file_new:
+
     is_inserted = False  # Whether line `ins` is inserted in `file_new`.
     for line in file_old:
         file_new.write(line)
@@ -78,25 +79,26 @@ os.rename(os.path.join(folder_path, tmp_tex_name),
 
 # Go to folder of sources
 os.chdir(folder_path)
-
 # Execute command to get '.pdf' from `tex_name`.
-os.system('pdflatex -interaction=nonstopmode -output-directory={} "{}" > \
-          /dev/null'.format(folder_path, os.path.join(folder_path, tex_name)))
+pdflatex_command = 'pdflatex -interaction=nonstopmode -output-directory={} {} > \
+          /dev/null'.format(folder_path, os.path.join(folder_path, tex_name))
+os.system(pdflatex_command)
+os.rename(os.path.join(folder_path, plain_name + 'pdf'),
+          os.path.join(folder_path, name + 'pdf'))
 
 # Rm <name>_files directory.
 try:
     shutil.rmtree(files_folder_to_del)
 except Exception as e:
-    print('-> Not found: ', files_folder_to_del)
+    print('-> Not found _files: ', files_folder_to_del)
 
 TO_DEL = ['aux', 'log', 'out', 'tex']
-
 # Rm temporary files.
 for ext in TO_DEL:
-    tmp_file_to_del = os.path.join(folder_path, name + ext)
+    tmp_file_to_del = os.path.join(folder_path, plain_name + ext)
     try:
         os.remove(tmp_file_to_del)
     except Exception as e:
-        print('-> Not found: ', tmp_file_to_del)
+        print('-> Not found tmp file: ', tmp_file_to_del)
 
 print('Done')
