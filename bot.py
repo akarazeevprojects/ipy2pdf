@@ -18,20 +18,24 @@ logger.setLevel(logging.DEBUG)
 
 
 DATA_FOLDER = "data"
+# botlogger = BotLogs("bot_logger", "bot.log")
 
 help_text = list()
-help_text.append("Этот бот позволяет конвертировать .ipynb в .pdf -- просто пришли мне .ipynb файл.")
+help_text.append("Этот бот позволяет конвертировать .ipynb в .pdf -- просто пришли мне .ipynb файл")
+help_text.append('')
 help_text.append("Команда /files выводит список файлов в твоей директории и позволяет скачать нужный файл")
 help_text = '\n'.join(help_text)
 
 start_text = list()
 start_text.append("Привет!")
+start_text.append('')
 start_text.append(help_text)
+start_text.append('')
 start_text.append("Если возникнут трудности/будут пожелания или замечания, то направляй их пожалуйста @akarazeev :)")
 start_text = '\n'.join(start_text)
 
 brackets_text = "Убери скобочки из названия файла, пожалуйста. И пришли заново"
-botlogger = BotLogs("bot_logger", "bot.log")
+emptyfolder_text = "Файлы отсутствуют. Пришли мне что-нибудь"
 
 
 def get_token():
@@ -41,7 +45,7 @@ def get_token():
 
 
 def converter(bot, update):
-    global botlogger
+    # global botlogger
     file_path = None
 
     chat_dir = os.path.join(DATA_FOLDER, str(update.message.chat_id))
@@ -83,15 +87,15 @@ def converter(bot, update):
     with open(pdf_path, 'rb') as f:
         update.message.reply_document(f)
 
-    botlogger.add_msg("user {} send {}".format(str(update.message.chat_id), file_name))
+    # botlogger.add_msg("user {} send {}".format(str(update.message.chat_id), file_name))
 
     # update.message.reply_text(make_info())
 
 
 def make_info():
-    global botlogger
-    reqs = str(botlogger.number_of_requests())
-    firstdate = botlogger.first_date()
+    # global botlogger
+    # reqs = str(botlogger.number_of_requests())
+    # firstdate = botlogger.first_date()
     msg = '{} requests since launch ({})'.format(reqs, firstdate)
     return msg
 
@@ -105,17 +109,16 @@ def get_chat_dir(chat_id):
     return os.path.join(DATA_FOLDER, str(chat_id))
 
 
-def get_files_list(chat_id):
+def get_files_list(chat_dir):
     """Short summary.
 
     Args:
-        chat_id (int):
+        chat_dir (str): Path to user's folder.
 
     Returns:
         list: List of pairs (number, filename)
 
     """
-    chat_dir = get_chat_dir(chat_id)
     chat_dir_list = os.listdir(chat_dir)
     chat_dir_list = sorted(list(filter(lambda x: not x.startswith('.'), chat_dir_list)))
     chat_dir_list = list(enumerate(chat_dir_list))
@@ -123,15 +126,25 @@ def get_files_list(chat_id):
 
 
 def files(bot, update):
-    chat_dir_list = get_files_list(update.message.chat_id)
-    print('Lol')
+    chat_dir = get_chat_dir(update.message.chat_id)
 
-    response_text = list()
-    response_text.append("Содержимое твоей папки:")
-    for number, filename in chat_dir_list:
-        response_text.append('- "{filename}" --скачать--> /{number}'.format(filename=filename, number=number))
-    response_text = '\n'.join(response_text)
-    update.message.reply_text(response_text)
+    try:
+        if not os.path.exists(chat_dir):
+            raise Exception
+
+        chat_dir_list = get_files_list(chat_dir)
+
+        if len(chat_dir_list) == 0:
+            raise Exception
+
+        response_text = list()
+        response_text.append("Содержимое твоей папки:")
+        for number, filename in chat_dir_list:
+            response_text.append('- "{filename}" --скачать--> /{number}'.format(filename=filename, number=number))
+        response_text = '\n'.join(response_text)
+        update.message.reply_text(response_text)
+    except Exception as e:
+        update.message.reply_text(emptyfolder_text)
 
 
 def choose_file(bot, update):
