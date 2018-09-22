@@ -8,6 +8,7 @@ import json
 import os
 import re
 import logging
+import platform
 from utils import BotLogs
 
 # Enable logging
@@ -18,6 +19,12 @@ logger.setLevel(logging.DEBUG)
 
 
 DATA_FOLDER = "data"
+PROXY_URL = None
+if platform.system() == 'Darwin':
+    PROXY_URL = 'socks5://127.0.0.1:9050'
+elif platform.system() == 'Linux':
+    PROXY_URL = 'socks5h://127.0.0.1:9050'
+
 # botlogger = BotLogs("bot_logger", "bot.log")
 
 help_text = list()
@@ -119,6 +126,7 @@ def get_files_list(chat_dir):
         list: List of pairs (number, filename)
 
     """
+    print(chat_dir)
     chat_dir_list = os.listdir(chat_dir)
     chat_dir_list = sorted(list(filter(lambda x: not x.startswith('.'), chat_dir_list)))
     chat_dir_list = list(enumerate(chat_dir_list))
@@ -152,7 +160,8 @@ def choose_file(bot, update):
     chat_id = update.message.chat_id
 
     file_number = int(command[1:])
-    chat_dir_list = get_files_list(chat_id)
+    chat_dir = get_chat_dir(chat_id)
+    chat_dir_list = get_files_list(chat_dir)
     filename = chat_dir_list[file_number][1]
 
     update.message.reply_text('Ты просишь меня скачать файл "{filename}", который имеет порядковый номер {number} в директории. Окей...'.format(filename=filename, number=file_number))
@@ -171,7 +180,7 @@ def start(bot, update):
 def main():
     token = get_token()
     print('-> USE PROXY')
-    req = telegram.utils.request.Request(proxy_url='socks5://127.0.0.1:9050',
+    req = telegram.utils.request.Request(proxy_url=PROXY_URL,
                                          read_timeout=30, connect_timeout=20,
                                          con_pool_size=10)
     bot = telegram.Bot(token=token, request=req)
