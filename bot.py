@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from telegram.ext import Updater, MessageHandler, Filters, CommandHandler
 import subprocess
 import telegram
@@ -9,6 +6,7 @@ import os
 import re
 import logging
 import platform
+import emoji
 from utils import BotLogs
 
 # Enable logging
@@ -28,17 +26,17 @@ elif platform.system() == 'Linux':
 # botlogger = BotLogs("bot_logger", "bot.log")
 
 help_text = list()
-help_text.append("Этот бот позволяет конвертировать .ipynb в .pdf -- просто пришли мне .ipynb файл")
+help_text.append("Этот бот позволяет конвертировать *.ipynb* в *.pdf* -- просто пришли мне *.ipynb* файл")
 help_text.append('')
 help_text.append("Команда /files выводит список файлов в твоей директории и позволяет скачать нужный файл")
 help_text = '\n'.join(help_text)
 
 start_text = list()
 start_text.append("Привет!")
-start_text.append('')
 start_text.append(help_text)
 start_text.append('')
-start_text.append("Если возникнут трудности/будут пожелания или замечания, то направляй их пожалуйста @akarazeev :)")
+start_text.append("Возможно, тебе также будет интересно подписаться на канал @akarazeevchannel")
+start_text.append(emoji.emojize("Если возникнут трудности/будут пожелания или замечания, то направляй их пожалуйста @akarazeev :relieved:", use_aliases=True))
 start_text = '\n'.join(start_text)
 
 brackets_text = "Убери скобочки из названия файла, пожалуйста. И пришли заново"
@@ -81,7 +79,9 @@ def converter(bot, update):
 
     file_path = os.path.realpath(file_path)
 
-    update.message.reply_text("Converting...")
+    users_number = len(os.listdir('data/'))
+
+    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатитика показывает, что примерное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
     print(file_path)
     bash_command = "ipy2pdf '{}'".format(file_path)
     print(bash_command)
@@ -99,17 +99,17 @@ def converter(bot, update):
     # update.message.reply_text(make_info())
 
 
-def make_info():
-    # global botlogger
-    # reqs = str(botlogger.number_of_requests())
-    # firstdate = botlogger.first_date()
-    msg = '{} requests since launch ({})'.format(reqs, firstdate)
-    return msg
+# def make_info():
+#     global botlogger
+#     reqs = str(botlogger.number_of_requests())
+#     firstdate = botlogger.first_date()
+#     msg = '{} requests since launch ({})'.format(reqs, firstdate)
+#     return msg
 
 
-def info(bot, update):
-    msg = make_info()
-    update.message.reply_text(msg)
+# def info(bot, update):
+#     msg = make_info()
+#     update.message.reply_text(msg)
 
 
 def get_chat_dir(chat_id):
@@ -148,9 +148,9 @@ def files(bot, update):
         response_text = list()
         response_text.append("Содержимое твоей папки:")
         for number, filename in chat_dir_list:
-            response_text.append('- "{filename}" --скачать--> /{number}'.format(filename=filename, number=number))
+            response_text.append(f'- *{filename}* --скачать--> /{number}')
         response_text = '\n'.join(response_text)
-        update.message.reply_text(response_text)
+        update.message.reply_text(response_text, parse_mode=telegram.ParseMode.MARKDOWN)
     except Exception as e:
         update.message.reply_text(emptyfolder_text)
 
@@ -164,17 +164,17 @@ def choose_file(bot, update):
     chat_dir_list = get_files_list(chat_dir)
     filename = chat_dir_list[file_number][1]
 
-    update.message.reply_text('Ты просишь меня скачать файл "{filename}", который имеет порядковый номер {number} в директории. Окей...'.format(filename=filename, number=file_number))
+    update.message.reply_text(f'Ты просишь меня скачать файл *{filename}*, который имеет порядковый номер *{file_number}* в директории. Окей...', parse_mode=telegram.ParseMode.MARKDOWN)
     with open(os.path.join(get_chat_dir(chat_id), filename), 'rb') as f:
         update.message.reply_document(f)
 
 
 def help(bot, update):
-    update.message.reply_text(help_text)
+    update.message.reply_text(help_text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def start(bot, update):
-    update.message.reply_text(start_text)
+    update.message.reply_text(start_text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def main():
@@ -190,7 +190,7 @@ def main():
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(CommandHandler("files", files))
-    dp.add_handler(CommandHandler("info", info))
+    # dp.add_handler(CommandHandler("info", info))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(MessageHandler(Filters.text, help))

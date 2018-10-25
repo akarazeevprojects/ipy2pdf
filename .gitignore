@@ -3,3 +3,4 @@ bot.log
 data/
 */*.DS_Store
 token.json
+.idea/
