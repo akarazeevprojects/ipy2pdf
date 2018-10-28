@@ -83,7 +83,8 @@ def converter(bot, update):
 
     update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатитика показывает, что примерное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
     print(file_path)
-    bash_command = "ipy2pdf '{}'".format(file_path)
+    # bash_command = "source /home/anton/.envs/ipy/bin/activate && cd /home/anton/WD/ipy2pdf/ && python3 ipy2pdf '{}'".format(file_path)
+    bash_command = "cd /home/anton/WD/ipy2pdf/ && python3 ipy2pdf '{}'".format(file_path)
     print(bash_command)
     process = subprocess.Popen(bash_command, stdout=subprocess.PIPE, shell=True)
     process.communicate()

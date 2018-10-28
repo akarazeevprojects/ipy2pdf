@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# 
 
 #
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -62,8 +63,8 @@ pttrn = "\\usepackage{mathpazo}"
 # Goal: to insert line `ins` after pttrn in '.tex' file.
 ins = "    \\usepackage[T2A]{fontenc}\n"
 
-with open(os.path.join(folder_path, tex_name), "r") as file_old, \
-    open(os.path.join(folder_path, tmp_tex_name), "w") as file_new:
+with open(os.path.join(folder_path, tex_name), "r", encoding="utf-8") as file_old, \
+    open(os.path.join(folder_path, tmp_tex_name), "w", encoding="utf-8") as file_new:
 
     is_inserted = False  # Whether line `ins` is inserted in `file_new`.
     for line in file_old:
