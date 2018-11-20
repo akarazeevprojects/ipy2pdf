@@ -170,6 +170,11 @@ def choose_file(bot, update):
         update.message.reply_document(f)
 
 
+def info(bot, update):
+    users_number = len(os.listdir('data/'))
+    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатитика показывает, что пример    ное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
+
+
 def help(bot, update):
     update.message.reply_text(help_text, parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -191,7 +196,7 @@ def main():
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(CommandHandler("files", files))
-    # dp.add_handler(CommandHandler("info", info))
+    dp.add_handler(CommandHandler("info", info))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(MessageHandler(Filters.text, help))
