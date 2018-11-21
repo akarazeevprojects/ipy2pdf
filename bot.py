@@ -81,7 +81,7 @@ def converter(bot, update):
 
     users_number = len(os.listdir('data/'))
 
-    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатитика показывает, что примерное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
+    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатистика показывает, что примерное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
     print(file_path)
     # bash_command = "source /home/anton/.envs/ipy/bin/activate && cd /home/anton/WD/ipy2pdf/ && python3 ipy2pdf '{}'".format(file_path)
     bash_command = "cd /home/anton/WD/ipy2pdf/ && python3 ipy2pdf '{}'".format(file_path)
@@ -172,7 +172,7 @@ def choose_file(bot, update):
 
 def info(bot, update):
     users_number = len(os.listdir('data/'))
-    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатитика показывает, что пример    ное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
+    update.message.reply_text(f"Конвертирую...\nПока ты ждёшь -- можешь почитать @akarazeevchannel :)\n\nСтатистика показывает, что пример    ное число активных пользователей: *{users_number}*", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def help(bot, update):
